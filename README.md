@@ -3,7 +3,7 @@
 ## Installing
 ## Documentation
 
-- [Node process](https://github.com/Skrip42/NodeProcessor#nodeprocess)
+- [Node process](https://github.com/Skrip42/NodeProcessor#node-process)
 - [Base usage](https://github.com/Skrip42/NodeProcessor#base-usage)
 - [Create process](#create-process)
 - [Running process and debug](#running-process-and-debug)
@@ -203,15 +203,183 @@ $process->setResponse('uniqIdOfRequest', 'response data');
 Then the process will continue to execute from the node that sent the request (from node "setResponse" method)
 
 ### Nodes
+The module provides a number of base nodes:
+- [ComonNodes](https://github.com/Skrip42/NodeProcessor#comonnodes)
+- [Logical nodes](https://github.com/Skrip42/NodeProcessor#logical-nodes)
+- [Arithmetical nodes](https://github.com/Skrip42/NodeProcessor#arithmetical-nodes)
+- [String nodes](https://github.com/Skrip42/NodeProcessor#string-nodes)
+- [Other nodes](https://github.com/Skrip42/NodeProcessor#other-nodes)
 ### ComonNodes
 #### Manager nodes
 ##### BeginNode
+###### Description:
+Start node, executed when the process starts
+###### Parametrs:
+- mixed value = true
+###### Grapical:
+     ┌─────────────┐
+     │             ├─ out1
+     │             │
+     │             │
+     │             ├─ out2
+     │  BeginNode  │
+     │             │
+     │             ├─ ...
+     │             │
+     │             │
+     │             ├─ out$n
+     └─────────────┘
+###### Inputs:
+none
+###### Outputs:
+- one or more outputs by pattern out{number}
+###### Requests:
+none
+###### Logic:
+emit $value from all outputs
+
 ##### EndNode
+###### Description:
+End node, collect result of process
+###### Parametrs:
+none
+###### Grapical:
+         ┌───────────────┐
+   in1  ─┤               │
+         │               │
+   in2  ─┤               │
+         │    EndNode    │
+   ...  ─┤               │
+         │               │
+   in$n ─┤               │
+         └───────────────┘
+###### Inputs:
+- some count of any value with any names
+###### Outputs:
+none
+###### Requests:
+none
+###### Logic:
+Collect all input value and map it to process result array.
+Input can haw any names, this names map to result array key.
+
 ##### SplitterNode
+###### Description:
+Forked process trates
+###### Parametrs:
+none
+###### Grapical:
+       ┌───────────────┐
+       │               ├─ out1
+       │               │
+       │               ├─ out2
+  in  ─┤  SplitterNode │
+       │               ├─ ...
+       │               │
+       │               ├─ out$n
+       └───────────────┘
+###### Inputs:
+- in - required any type
+###### Outputs:
+- eny count of value with name like pattern: out{number}
+###### Requests:
+none
+###### Logic:
+emit input value to all outputs
+out1 = out2 = ... = out$n = in
+
 ##### SingleNode
+###### Description:
+singlify input signals
+###### Parametrs:
+none
+###### Grapical:
+          ┌───────────────┐
+   in    ─┤               │
+          │   SingleNode  ├─ out
+   reset ─┤               │
+          └───────────────┘
+###### Inputs:
+- in  - required any type
+- reset  - any value to reset input lock
+###### Outputs:
+- out - equal first of in
+###### Requests:
+none
+###### Logic:
+emit output signal only for first time input signal
+
 ##### WaitingNode
+###### Description:
+Waiting emit signal for continue
+###### Parametrs:
+none
+###### Grapical:
+         ┌───────────────┐
+   in   ─┤               │
+         │  WaitingNode  ├─ out
+   emit ─┤               │
+         └───────────────┘
+###### Inputs:
+- in  - required any type
+- reset  - required bool 
+###### Outputs:
+- out - equal in
+###### Requests:
+none
+###### Logic:
+emit outputs only if 'emit' signal = true
+
 ##### TriggerNode
+###### Description:
+emit additional signals when input signal received
+###### Parametrs:
+none
+###### Grapical:
+         ┌───────────────┐
+         │               ├─ before
+         │               │
+   in   ─┤  TriggerNode  ├─ out
+         │               │
+         │               ├─ after
+         └───────────────┘
+###### Inputs:
+- in  - required any type
+###### Outputs:
+- before - true
+- out - equal in
+- after - true
+###### Requests:
+none
+###### Logic:
+emit 'before'=true output when input received, before output emitted
+emit 'out' = 'in'
+emit 'after'=true output when input received, after output emitted
+
 ##### IterateNode
+###### Description:
+iterate array for each 'emit' signal received
+###### Parametrs:
+###### Grapical:
+           ┌───────────────┐
+   array  ─┤               ├─ out
+           │               │
+   emit   ─┤  IterateNode  ├─ complete
+           │               │
+   reset  ─┤               ├─ count
+           └───────────────┘
+###### Inputs:
+- array - required array
+- emit - required any type
+- reset - reset control
+###### Outputs:
+- out - 
+- complete - 
+- count - 
+###### Requests:
+###### Logic:
+
+
 ##### PauseNode
 ##### RepeatNode
 ##### SubprocessNode

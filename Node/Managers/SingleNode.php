@@ -6,7 +6,7 @@ use Skrip42\NodeProcessor\Node\NodeAbstract;
 use Skrip42\NodeProcessor\Exception\NodeException;
 
 /**
- * Repeat node
+ * Single node
  *
  *           ┌───────────────┐
  *    in    ─┤               │
