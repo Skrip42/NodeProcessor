@@ -86,7 +86,6 @@ class MultiSubProcessNode extends NodeAbstract
 
     public function getState() : array
     {
-        dump($this->output);
         $result = parent::getState();
         $result['subprocess'] = [];
         foreach ($this->childProcesses as $process) {

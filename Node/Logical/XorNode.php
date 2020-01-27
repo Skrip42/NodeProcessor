@@ -43,7 +43,6 @@ class XorNode extends NodeAbstract
     public function eval()
     {
         $counter = 0;
-        dump($this->input);
         foreach ($this->input as $in => $data) {
             if ($data['data']) {
                 $counter++;
