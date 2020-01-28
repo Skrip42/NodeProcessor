@@ -1,6 +1,8 @@
 # NodeProcessor
 ## Description
+Node Process is a small procedural like program executable on top of php.
 ## Installing
+composer require skrip42/node-processor
 ## Documentation
 
 - [Node process](https://github.com/Skrip42/NodeProcessor#node-process)
@@ -12,7 +14,7 @@
   - [Request/Response](#requestresponse)
 <!--- [Nodes](#nodes)-->
 - [ComonNodes](https://github.com/Skrip42/NodeProcessor#comonnodes)
-    - [Manager nodes](https://github.com/Skrip42/NodeProcessor#manager-nodes)
+  - [Manager nodes](https://github.com/Skrip42/NodeProcessor#manager-nodes)
     - [BeginNode](https://github.com/Skrip42/NodeProcessor#beginnode)
     - [EndNode](https://github.com/Skrip42/NodeProcessor#endnode)
     - [SplitterNode](https://github.com/Skrip42/NodeProcessor#splitterNode)
@@ -55,7 +57,7 @@
 Node Process is a small procedural like program executable on top of php.
 The process consists of nodes and the connections between them, as well as the state of these nodes
 An important consequence of this: At any time, the process can be stopped, saved with the current state and continue to execute from the same point.
-Processes can be dynamically created using PCP, serialize, deserialize.
+Processes can be dynamically created using PHP, serialize, deserialize.
 #### Base usage
 Add 
 ```php
@@ -203,12 +205,27 @@ $process->setResponse('uniqIdOfRequest', 'response data');
 Then the process will continue to execute from the node that sent the request (from node "setResponse" method)
 
 ### Nodes
-The module provides a number of base nodes:
-- [ComonNodes](https://github.com/Skrip42/NodeProcessor#comonnodes)
-- [Logical nodes](https://github.com/Skrip42/NodeProcessor#logical-nodes)
-- [Arithmetical nodes](https://github.com/Skrip42/NodeProcessor#arithmetical-nodes)
-- [String nodes](https://github.com/Skrip42/NodeProcessor#string-nodes)
-- [Other nodes](https://github.com/Skrip42/NodeProcessor#other-nodes)
+Nodes are the buildeing blocks of processes.
+Most nodes have one or more inputs and outputs. 
+Input can be 'required' then node cannot run without this input received.
+Input and output can be dynamically declaration (as pattern or free).
+Output can have default value.
+Input and output sored their values.
+Input and output have a start counter.
+Nodes run after all required input received.
+Nodes run everytime when any input received if all required input has value.
+Nodes can be force running from eval() method (no recommended).
+Nodes can emit request and receive response.
+
+The module provides a sume number of base nodes:
+- [Manager nodes:](https://github.com/Skrip42/NodeProcessor#manager-nodes) base thread controll
+- [Logical nodes:](https://github.com/Skrip42/NodeProcessor#logical-nodes) base logical operation
+- [Arithmetical nodes:](https://github.com/Skrip42/NodeProcessor#arithmetical-nodes) base arithmetical operation
+- [String nodes:](https://github.com/Skrip42/NodeProcessor#string-nodes) base string operation
+- [Array nodes:](https://github.com/Skrip42/NodeProcessor#array-nodes) base array operation
+- [Other nodes:](https://github.com/Skrip42/NodeProcessor#other-nodes) base value emitrs, debug, counters
+You also can declaration [user node](https://github.com/Skrip42/NodeProcessor#creating-user-node)
+
 ### ComonNodes
 #### Manager nodes
 ##### BeginNode
@@ -1027,8 +1044,58 @@ none
 emit value when 'out' received
 
 ### Creating user node
+To create user node type, create a class extended from NodeAbstract and define public eval() method
 #### Input/output defenition
+Input and output policy declarated in static propery $scheme
+```php
+static propery $scheme = [
+    'input' => [                //input declaration
+        'optionalInput' => [       //optional input named as 'optionalInput'
+        ],
+        'requiredInput' => [       //required input named as 'requiredInput'
+            'required' => true,    //set 'required' => true to make input required
+        ]
+    ],
+    'user_input' => [           //dynamic input declarated
+        'pattern' => '~in\d+~', //pattern for available input names
+        'property' => [
+            'required' => true  //also can be required
+        ]
+    ],
+    'output' => [                       //output declaration
+        'outputWithDefaultData' => [    //output named as 'outputWithDefaultData'
+            'data' => 'default data'        //define 'data' property to define default data
+        ],
+        'outputWithoutDefaultData' => [ //output named as 'outputWithoutDefaultData'
+        ]
+    ],
+    'user_output' => [  //dynamic output declarated
+    ],                  //if pattern property is null, all names available
+]
+```
+Output emited only when all required input received
 #### Read input/output, emit signals
+You can get access to input and output as
+```php
+$value = $this->input['inputName']['data']; //get value from 'inputName' input
+$this->output['outputName']['data'] = $value; //set value to 'outputName' output (not emitted)
+```
+To emit output print:
+```php
+$this->emit('outputName');
+//or you can set value and output:
+$this->emit('ouputName', $sumeValue);
+```
 #### Request/response processing
-
+You can emit request from node:
+```php
+$this->sendRequest($data, $id=null); //if $id == null $id get automaticaly uniq identifier
+```
+To process response in node extend setResponse method
+```php
+public function setResponse($id, $data)
+{
+    ....do somethind
+}
+```
 
